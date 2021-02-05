@@ -1,0 +1,5 @@
+<launch>
+    <node pkg="lidar_slam" type="main" name="slam_main" />
+
+    <node pkg="rviz" type="rviz" name="rviz_slam" args="-d $(find lidar_slam)/launch/config.rviz" />
+</launch>
