@@ -1,0 +1,5 @@
+# Prerequisites
+*.autosave
+
+# CMAKE user files
+*.user
