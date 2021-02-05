@@ -11,8 +11,8 @@
 #include "feature.h"
 
 Scan::Scan(pcl::PointCloud<pcl::PointXYZ>::Ptr i_cloud){
-    cloud=i_cloud;
-    pose = Eigen::VectorXd::Zero(6);
+    _cloud=i_cloud;
+    _pose = Eigen::VectorXd::Zero(6);
 }
 
 

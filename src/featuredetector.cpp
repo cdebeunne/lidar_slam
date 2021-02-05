@@ -11,24 +11,24 @@ void CESARFeatureDetector::detect(const std::shared_ptr<Scan> &scan, std::vector
     LENGTH = scan->getLength();
 
     // Reinit Memory
-    orgCloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>(WIDTH,LENGTH));
-    planeCloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>(WIDTH,LENGTH));
-    edgeCloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>(WIDTH,LENGTH));
-    edge_Vect.clear();
-    plane_Vect.clear();
+    _orgCloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>(WIDTH,LENGTH));
+    _planeCloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>(WIDTH,LENGTH));
+    _edgeCloud = pcl::PointCloud<pcl::PointXYZ>::Ptr(new pcl::PointCloud<pcl::PointXYZ>(WIDTH,LENGTH));
+    _edgeVect.clear();
+    _planeVect.clear();
     edgeVect.clear();
     planeVect.clear();
 
     // Perform detection
-    cloud = scan->getCloud();
+    _cloud = scan->getCloud();
     cloudOrganizer();
     smoothnessCalculator();
     featureCloudComputation();
     edgeSegmentation();
     planeSegmentation();
 
-    edgeVect = edge_Vect;
-    planeVect = plane_Vect;
+    edgeVect = _edgeVect;
+    planeVect = _planeVect;
 }
 
 int CESARFeatureDetector::modulo(int idx, int length){
@@ -43,8 +43,8 @@ int CESARFeatureDetector::modulo(int idx, int length){
 
 void CESARFeatureDetector::smoothnessCalculator()
 {
-    smoothnessCloud = Eigen::MatrixXf::Zero(WIDTH,LENGTH);
-    labelCloud = Eigen::MatrixXf::Zero(WIDTH,LENGTH);
+    _smoothnessCloud = Eigen::MatrixXf::Zero(WIDTH,LENGTH);
+    _labelCloud = Eigen::MatrixXf::Zero(WIDTH,LENGTH);
 
     // creation of the origin point
     pcl::PointXYZ origin;
@@ -57,7 +57,7 @@ void CESARFeatureDetector::smoothnessCalculator()
         for(int j=0; j < LENGTH; j++)
         {
             // check if the point is valid
-            pcl::PointXYZ scorePoint = orgCloud->at(i,j);
+            pcl::PointXYZ scorePoint = _orgCloud->at(i,j);
             if (scorePoint.x==0 || std::isnan(scorePoint.x)){
                 continue;
             }
@@ -69,7 +69,7 @@ void CESARFeatureDetector::smoothnessCalculator()
 
             // ...backward...
             while (counter < SLICE/2){
-                pcl::PointXYZ pt = orgCloud->at(i,idx);
+                pcl::PointXYZ pt = _orgCloud->at(i,idx);
                 if (pt.x != 0 && !std::isnan(pt.x)){
                     goodPointsIdx[counter] = idx;
                     counter++;
@@ -83,7 +83,7 @@ void CESARFeatureDetector::smoothnessCalculator()
 
             // ... and forward
             while (counter < SLICE/2){
-                pcl::PointXYZ pt = orgCloud->at(i,idx);
+                pcl::PointXYZ pt = _orgCloud->at(i,idx);
                 if (pt.x != 0 && !std::isnan(pt.x)){
                     goodPointsIdx[counter+SLICE/2] = idx;
                     counter++;
@@ -96,17 +96,17 @@ void CESARFeatureDetector::smoothnessCalculator()
             // score calculation
             Eigen::VectorXf distVect(SLICE);
             for (int k=0; k<SLICE; k++){
-                pcl::PointXYZ slicePoint = orgCloud->at(i, goodPointsIdx[k]);
+                pcl::PointXYZ slicePoint = _orgCloud->at(i, goodPointsIdx[k]);
                 distVect(k) = pcl::euclideanDistance(scorePoint, slicePoint);
             }
-            smoothnessCloud(i,j) = distVect.sum()/(SLICE*pcl::euclideanDistance(scorePoint,origin));
+            _smoothnessCloud(i,j) = distVect.sum()/(SLICE*pcl::euclideanDistance(scorePoint,origin));
 
             // labelCloud & feature clouds edition
-            if (smoothnessCloud(i,j)<C_PLANE){
-                labelCloud(i,j) = 1;
+            if (_smoothnessCloud(i,j)<C_PLANE){
+                _labelCloud(i,j) = 1;
             }
-            if (smoothnessCloud(i,j)>C_EDGE){
-                labelCloud(i,j) = 2;
+            if (_smoothnessCloud(i,j)>C_EDGE){
+                _labelCloud(i,j) = 2;
             }
         }
     }
@@ -117,21 +117,21 @@ void CESARFeatureDetector::featureCloudComputation(){
     {
         for(int j=0; j < LENGTH; j++)
         {
-            pcl::PointXYZ scorePoint = orgCloud->at(i,j);
+            pcl::PointXYZ scorePoint = _orgCloud->at(i,j);
             int up = modulo(i+1, WIDTH);
             int down = modulo(i-1, WIDTH);
             int left = modulo(j-1, LENGTH);
             int right = modulo(j+1, LENGTH);
-            if (labelCloud(i,j)==1){
-                bool isPlane = ((labelCloud(up,j)==1)||(labelCloud(down,j)==1))&&((labelCloud(i,left)==1)||(labelCloud(i,right)==1));
+            if (_labelCloud(i,j)==1){
+                bool isPlane = ((_labelCloud(up,j)==1)||(_labelCloud(down,j)==1))&&((_labelCloud(i,left)==1)||(_labelCloud(i,right)==1));
                 if (isPlane){
-                    planeCloud->at(i,j) = scorePoint;
+                    _planeCloud->at(i,j) = scorePoint;
                 }
             }
-            if (labelCloud(i,j)==2){
+            if (_labelCloud(i,j)==2){
                 bool isEdge = true;
                 if (isEdge){
-                    edgeCloud->at(i,j) = scorePoint;
+                    _edgeCloud->at(i,j) = scorePoint;
                 }
             }
         }
@@ -143,7 +143,7 @@ void CESARFeatureDetector::edgeSegmentation(){
 
     pcl::VoxelGrid<pcl::PointXYZ> vg;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
-    vg.setInputCloud (edgeCloud);
+    vg.setInputCloud (_edgeCloud);
     vg.setLeafSize (LEAFSIZE, LEAFSIZE, LEAFSIZE);
     vg.filter (*cloud_filtered);
 
@@ -174,7 +174,7 @@ void CESARFeatureDetector::edgeSegmentation(){
 
       // check if it is a real edge
       if (cloud_edge.getEigenValues()(2) > 10*cloud_edge.getEigenValues()(1) && cloud_edge.getDirection()(2) > 0.1){
-        edge_Vect.push_back(cloud_edge);
+        _edgeVect.push_back(cloud_edge);
       }
     }
 }
@@ -184,7 +184,7 @@ void CESARFeatureDetector::planeSegmentation(){
 
     pcl::VoxelGrid<pcl::PointXYZ> vg;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
-    vg.setInputCloud (planeCloud);
+    vg.setInputCloud (_planeCloud);
     vg.setLeafSize (LEAFSIZE, LEAFSIZE, LEAFSIZE);
     vg.filter (*cloud_filtered);
 
@@ -215,7 +215,7 @@ void CESARFeatureDetector::planeSegmentation(){
 
       // check if it is a real plane
       if (cloud_plane.getEigenValues()(1) > 20*cloud_plane.getEigenValues()(0) && std::abs(cloud_plane.getDirection()(2)) < 0.1){
-        plane_Vect.push_back(cloud_plane);
+        _planeVect.push_back(cloud_plane);
       }
     }
 }
@@ -227,16 +227,16 @@ pcl::PointCloud<pcl::PointXYZRGB>::Ptr CESARFeatureDetector::colorComputation(){
     {
         for(int j=0; j < LENGTH; j++)
         {
-            pcl::PointXYZ ptIn = orgCloud->at(i,j);
+            pcl::PointXYZ ptIn = _orgCloud->at(i,j);
             pcl::PointXYZRGB ptOut;
             ptOut.x = ptIn.x;
             ptOut.y = ptIn.y;
             ptOut.z = ptIn.z;
-            if (labelCloud(i,j) == 2){
+            if (_labelCloud(i,j) == 2){
                 uint8_t r = 0, g = 255, b = 0;
                 uint32_t rgb = ((uint32_t)r << 16 | (uint32_t)g << 8 | (uint32_t)b);
                 ptOut.rgb = *reinterpret_cast<float*>(&rgb);
-            } else if (labelCloud(i,j) == 1){
+            } else if (_labelCloud(i,j) == 1){
                 uint8_t r = 0, g = 0, b = 255;
                 uint32_t rgb = ((uint32_t)r << 16 | (uint32_t)g << 8 | (uint32_t)b);
                 ptOut.rgb = *reinterpret_cast<float*>(&rgb);
@@ -264,16 +264,16 @@ VLP16CESARDetector::VLP16CESARDetector(){
 
 void VLP16CESARDetector::cloudOrganizer()
 {
-    for(int i=0; i < cloud->size(); ++i)
+    for(int i=0; i < _cloud->size(); ++i)
     {
-        pcl::PointXYZ pt = cloud->at(i);
+        pcl::PointXYZ pt = _cloud->at(i);
         double theta = (std::atan2(pt.y, pt.x)+M_PI)*180/M_PI;
         double phi = std::atan2(pt.z, sqrt(pt.y*pt.y + pt.x*pt.x))*180/M_PI+15;
         int row = std::round(phi*WIDTH/30);
         int column = std::round(theta*LENGTH/360);
         row = std::max(row-1, 0);
         column = std::max(column-1,0);
-        orgCloud->at(row, column) = pt;
+        _orgCloud->at(row, column) = pt;
     }
 }
 
@@ -291,15 +291,15 @@ HDL64CESARDetector::HDL64CESARDetector()
 
 void HDL64CESARDetector::cloudOrganizer()
 {
-    for(int i=0; i < cloud->size(); ++i)
+    for(int i=0; i < _cloud->size(); ++i)
     {
-        pcl::PointXYZ pt = cloud->at(i);
+        pcl::PointXYZ pt = _cloud->at(i);
         double theta = (std::atan2(pt.y, pt.x)+M_PI)*180/M_PI;
         double phi = std::atan2(pt.z, sqrt(pt.y*pt.y + pt.x*pt.x))*180/M_PI+23.72;
         int row = std::round(phi*WIDTH/29.42);
         int column = std::round(theta*LENGTH/360);
         row = modulo(std::max(row, 0),WIDTH);
         column = modulo(std::max(column,0), LENGTH);
-        orgCloud->at(row, column) = pt;
+        _orgCloud->at(row, column) = pt;
     }
 }
