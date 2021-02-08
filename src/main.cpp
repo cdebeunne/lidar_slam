@@ -26,10 +26,10 @@
 
 int main (int argc, char** argv)
 {
-    ros::init(argc, argv, "kitti_ros");
+    ros::init(argc, argv, "lidar_slam");
     ros::NodeHandle nh;
 
-    KittiScanProvider prov("/media/debeunne/DATA/Stage DEOS/pcdFiles/KITTI_3/message",1, 268);
+    KittiScanProvider prov("/media/debeunne/DATA/Stage DEOS/pcdFiles/KITTI_3/message",3, 268);
     std::vector<Eigen::VectorXd> gt = prov.getGrountruth("/media/debeunne/DATA/Stage DEOS/pcdFiles/KITTI_3_GT/data");
 
     // Initialization of the tools
@@ -63,8 +63,6 @@ int main (int argc, char** argv)
 //    disp.dispEdgeVect(theScan1->getEdgeVect());
 //    disp.dispMatchedEdges(corespEdge, theScan->getEdgeVect(), theScan1->getEdgeVect());
 //    disp.dispPointCloud(theScan->getCloud());
-    std::vector<Eigen::VectorXd> poseVect;
-    int counter = 0;
 
     while (theScan1 != nullptr){
         std::cout << "--------- " << prov.getIdx() << " ---------" << std::endl;
@@ -87,9 +85,7 @@ int main (int argc, char** argv)
         theScan1 = prov.next();
 
         // plot the line
-        poseVect.push_back(theScan->getPose());
-        plot.publishOdometry(poseVect[counter]);
-        counter++;
+        plot.publishOdometry(theScan->getPose());
 
         std::cout << theScan->getPose() << std::endl;
 

@@ -1,17 +1,7 @@
-#include <iostream>
-
-#include <pcl/io/io.h>
-#include <pcl/visualization/pcl_visualizer.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/kdtree/kdtree_flann.h>
-
-#include <Eigen/Dense>
-
 #include "scan.h"
-#include "feature.h"
 
 Scan::Scan(pcl::PointCloud<pcl::PointXYZ>::Ptr i_cloud){
-    _cloud=i_cloud;
+    _cloud = i_cloud;
     _pose = Eigen::VectorXd::Zero(6);
 }
 

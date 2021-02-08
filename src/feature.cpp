@@ -26,7 +26,7 @@ Edge::Edge(pcl::PointCloud<pcl::PointXYZ>::Ptr i_edgeCloud): Feature(i_edgeCloud
     _direction << _eigenVectors(0,2), _eigenVectors(1,2), _eigenVectors(2,2);
 
     // Flip the direction toward the sky
-    Eigen::Vector3d dir;
+    Eigen::Vector3f dir;
     dir << 0,0,1;
     if (dir.dot(_direction) <0)
     {

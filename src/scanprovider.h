@@ -9,6 +9,10 @@
 #include <math.h>
 #include "scan.h"
 
+#include <pcl/io/io.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/filters/statistical_outlier_removal.h>
+
 /*!
  * \file scanprovider.h
  * \brief A scan provider for point cloud stored in .pcd files

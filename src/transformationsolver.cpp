@@ -33,8 +33,8 @@ public:
         Eigen::Matrix3d R;
         R = euler2rotm(x[3],x[4],x[5]);
 
-        Eigen::Vector3d bary1 = edge1_.getBarycenter();
-        Eigen::Vector3d bary2 = edge2_.getBarycenter();
+        Eigen::Vector3d bary1 = edge1_.getBarycenter().cast<double> ();
+        Eigen::Vector3d bary2 = edge2_.getBarycenter().cast<double> ();
         Eigen::Matrix3d C;
         C << 0.5, 0, 0,
                 0, 0.5, 0,
@@ -58,8 +58,8 @@ public:
         Eigen::Matrix2d R;
         R << cos(x[5]), -sin(x[5]),
                 sin(x[5]), cos(x[5]);
-        Eigen::Vector2d bary1 = edge1_.getBarycenter().head(2);
-        Eigen::Vector2d bary2 = edge2_.getBarycenter().head(2);
+        Eigen::Vector2d bary1 = edge1_.getBarycenter().head(2).cast<double> ();
+        Eigen::Vector2d bary2 = edge2_.getBarycenter().head(2).cast<double> ();
         error[0] = (bary2-R*(bary1-T)).norm();
         return true;
     }
@@ -76,8 +76,8 @@ public:
         Eigen::Matrix3d R;
         R = euler2rotm(x[3],x[4],x[5]);
 
-        Eigen::Vector3d normal1 = plane1_.getDirection();
-        Eigen::Vector3d normal2 = plane2_.getDirection();
+        Eigen::Vector3d normal1 = plane1_.getDirection().cast<double> ();
+        Eigen::Vector3d normal2 = plane2_.getDirection().cast<double> ();
         error[0] = std::abs((R*normal1).dot(normal2)-normal1.norm()*normal2.norm());
         return true;
     }

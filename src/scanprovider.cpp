@@ -1,17 +1,6 @@
 #include "scanprovider.h"
 
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <math.h>
-#include "scan.h"
-#include <pcl/io/io.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/filters/statistical_outlier_removal.h>
-
-ScanProvider::ScanProvider(std::string path, int startIdx, int endIdx):_idx(startIdx),_folder(path),_endIdx(endIdx)
+ScanProvider::ScanProvider(std::string path, int startIdx, int endIdx):_folder(path),_idx(startIdx),_endIdx(endIdx)
 {}
 
 bool ScanProvider::fetchNextScan()
@@ -44,16 +33,8 @@ std::shared_ptr<ScanHDL64> KittiScanProvider::next()
         return nullptr;
     }
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_i (new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_out (new pcl::PointCloud<pcl::PointXYZ>);
     pcl::io::loadPCDFile (_scanPath, *cloud_i);
-    // Test
-    pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sorfilter (true); // Initializing with true will allow us to extract the removed indices
-    sorfilter.setInputCloud (cloud_i);
-    sorfilter.setMeanK (10);
-    sorfilter.setStddevMulThresh (3.0);
-    sorfilter.filter (*cloud_out);
-    // End
-    std::shared_ptr<ScanHDL64> scan = std::shared_ptr<ScanHDL64>(new ScanHDL64(cloud_out));
+    std::shared_ptr<ScanHDL64> scan = std::shared_ptr<ScanHDL64>(new ScanHDL64(cloud_i));
     return scan;
 }
 

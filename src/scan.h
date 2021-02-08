@@ -3,6 +3,7 @@
 
 #include <pcl/io/io.h>
 #include <Eigen/Dense>
+#include <pcl/filters/filter.h>
 #include "feature.h"
 
 /*!

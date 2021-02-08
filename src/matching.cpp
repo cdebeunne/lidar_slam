@@ -53,10 +53,10 @@ Eigen::MatrixXi Matching::edgeMatching(std::vector<Edge> edgeVect1, std::vector<
 {
     Eigen::Vector3f ev1;
     Eigen::Vector3f ev2;
-    Eigen::Vector3d barycenter1;
-    Eigen::Vector3d barycenter2;
-    Eigen::Vector3d dir1;
-    Eigen::Vector3d dir2;
+    Eigen::Vector3f barycenter1;
+    Eigen::Vector3f barycenter2;
+    Eigen::Vector3f dir1;
+    Eigen::Vector3f dir2;
     int size1;
     int size2;
     std::vector<int> corespTemp;
@@ -69,8 +69,8 @@ Eigen::MatrixXi Matching::edgeMatching(std::vector<Edge> edgeVect1, std::vector<
 
     // building the distance matrix
     Eigen::ArrayXXf distMat(edgeVect1.size(), edgeVect2.size());
-    for (int i=0; i<edgeVect1.size(); i++){
-        for (int j=0; j<edgeVect2.size(); j++){
+    for (int i=0; i<static_cast<int>(edgeVect1.size()); i++){
+        for (int j=0; j<static_cast<int>(edgeVect2.size()); j++){
             ev1 = edgeVect1[i].getEigenValues();
             dir1 = edgeVect1[i].getDirection();
             barycenter1 = edgeVect1[i].getBarycenter();
@@ -111,7 +111,7 @@ Eigen::MatrixXi Matching::edgeMatching(std::vector<Edge> edgeVect1, std::vector<
 
     // building the corespondance matrix
     Eigen::MatrixXi corespondanceEdge(corespTemp.size()/2, 2);
-    for (int i=0; i<corespTemp.size()/2; i++){
+    for (int i=0; i<static_cast<int>(corespTemp.size()/2); i++){
         corespondanceEdge(i,0) = corespTemp.at(i*2);
         corespondanceEdge(i,1) = corespTemp.at(i*2+1);
     }
@@ -123,10 +123,10 @@ Eigen::MatrixXi Matching::planeMatching(std::vector<Plane> planeVect1, std::vect
 {
     Eigen::Vector3f ev1;
     Eigen::Vector3f ev2;
-    Eigen::Vector3d barycenter1;
-    Eigen::Vector3d barycenter2;
-    Eigen::Vector3d dir1;
-    Eigen::Vector3d dir2;
+    Eigen::Vector3f barycenter1;
+    Eigen::Vector3f barycenter2;
+    Eigen::Vector3f dir1;
+    Eigen::Vector3f dir2;
     int size1;
     int size2;
     std::vector<int> corespTemp;
@@ -139,8 +139,8 @@ Eigen::MatrixXi Matching::planeMatching(std::vector<Plane> planeVect1, std::vect
 
     // building the distance matrix
     Eigen::ArrayXXf distMat(planeVect1.size(), planeVect2.size());
-    for (int i=0; i<planeVect1.size(); i++){
-        for (int j=0; j<planeVect2.size(); j++){
+    for (int i=0; i<static_cast<int>(planeVect1.size()); i++){
+        for (int j=0; j<static_cast<int>(planeVect2.size()); j++){
             ev1 = planeVect1[i].getEigenValues();
             dir1 = planeVect1[i].getDirection();
             barycenter1 = planeVect1[i].getBarycenter();
@@ -181,7 +181,7 @@ Eigen::MatrixXi Matching::planeMatching(std::vector<Plane> planeVect1, std::vect
 
     // building the corespondance matrix
     Eigen::MatrixXi corespondancePlane(corespTemp.size()/2, 2);
-    for (int i=0; i<corespTemp.size()/2; i++){
+    for (int i=0; i<static_cast<int>(corespTemp.size()/2); i++){
         corespondancePlane(i,0) = corespTemp.at(i*2);
         corespondancePlane(i,1) = corespTemp.at(i*2+1);
     }

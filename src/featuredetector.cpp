@@ -22,6 +22,7 @@ void CESARFeatureDetector::detect(const std::shared_ptr<Scan> &scan, std::vector
     // Perform detection
     _cloud = scan->getCloud();
     cloudOrganizer();
+    occlusionFilter();
     smoothnessCalculator();
     featureCloudComputation();
     edgeSegmentation();
@@ -41,10 +42,92 @@ int CESARFeatureDetector::modulo(int idx, int length){
     return idx;
 }
 
+void CESARFeatureDetector::occlusionFilter()
+{
+  for(int i=0; i < WIDTH; i++){
+    for(int j=0; j< LENGTH; j++){
+      // Check if the point is valid
+      pcl::PointXYZ point1 = _orgCloud->at(i,j);
+      if (point1.x==0){
+        continue;
+      }
+
+      // Find its neighbour
+      bool isNotValid = true;
+      int neighbourIdx = j+1;
+      pcl::PointXYZ point2;
+      printf("bite");
+      while (isNotValid){
+        if (neighbourIdx > LENGTH-1){
+          break;
+        }
+        point2 = _orgCloud->at(i,neighbourIdx);
+        if (point2.x==0){
+          neighbourIdx++;
+          continue;
+        } else {
+          isNotValid = false;
+        }
+      }
+
+      if (isNotValid){
+        break;
+      }
+
+      int columnDiff = neighbourIdx-j;
+      float range1 = std::sqrt(point1.x*point1.x +
+                               point1.y*point1.y +
+                               point1.z*point1.z);
+      float range2 = std::sqrt(point2.x*point2.x +
+                               point2.y*point2.y +
+                               point2.z*point2.z);
+
+      if (columnDiff < 10){
+        if (range1 - range2 > 0.3){
+          int counter = 0;
+          int occludedIdx = j-1;
+          while (counter < 5){
+            if (occludedIdx <0){
+              break;
+            }
+            // Check if the point is valid
+            pcl::PointXYZ pointOccluded = _orgCloud->at(i,occludedIdx);
+            if (pointOccluded.x==0){
+              occludedIdx--;
+              continue;
+            }
+            _orgCloud->at(i,j).x = 0;
+            occludedIdx--;
+            counter++;
+          }
+        }
+        if (range2-range1 > 0.3){
+          int counter = 0;
+          int occludedIdx = j+1;
+          while (counter < 5){
+            if (occludedIdx > LENGTH-1){
+              break;
+            }
+            // Check if the point is valid
+            pcl::PointXYZ pointOccluded = _orgCloud->at(i,occludedIdx);
+            if (pointOccluded.x==0){
+              occludedIdx++;
+              continue;
+            }
+            _orgCloud->at(i,j).x = 0;
+            occludedIdx++;
+            counter++;
+          }
+        }
+      }
+    }
+  }
+}
+
 void CESARFeatureDetector::smoothnessCalculator()
 {
     _smoothnessCloud = Eigen::MatrixXf::Zero(WIDTH,LENGTH);
-    _labelCloud = Eigen::MatrixXf::Zero(WIDTH,LENGTH);
+    _labelCloud = Eigen::MatrixXi::Zero(WIDTH,LENGTH);
 
     // creation of the origin point
     pcl::PointXYZ origin;
@@ -264,7 +347,7 @@ VLP16CESARDetector::VLP16CESARDetector(){
 
 void VLP16CESARDetector::cloudOrganizer()
 {
-    for(int i=0; i < _cloud->size(); ++i)
+    for(int i=0; i < static_cast<int>(_cloud->size()); ++i)
     {
         pcl::PointXYZ pt = _cloud->at(i);
         double theta = (std::atan2(pt.y, pt.x)+M_PI)*180/M_PI;
@@ -286,12 +369,12 @@ HDL64CESARDetector::HDL64CESARDetector()
     DISTTHRESHOLD_PLANE = 0.1;
     C_EDGE = 0.12;
     C_PLANE = 0.05;
-    LEAFSIZE = 0.05;
+    LEAFSIZE = 0.07;
 }
 
 void HDL64CESARDetector::cloudOrganizer()
 {
-    for(int i=0; i < _cloud->size(); ++i)
+    for(int i=0; i < static_cast<int>(_cloud->size()); ++i)
     {
         pcl::PointXYZ pt = _cloud->at(i);
         double theta = (std::atan2(pt.y, pt.x)+M_PI)*180/M_PI;

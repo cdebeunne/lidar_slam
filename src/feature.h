@@ -25,13 +25,13 @@ public:
     *  \brief accessor to the barycenter
     *  \return barycenter
     */
-    Eigen::Vector3d getBarycenter() const{return _barycenter;}
+    Eigen::Vector3f getBarycenter() const{return _barycenter;}
 
     /*!
     *  \brief accessor to the direction
     *  \return direction
     */
-    Eigen::Vector3d getDirection() const{return _direction;}
+    Eigen::Vector3f getDirection() const{return _direction;}
 
     /*!
     *  \brief accessor to the eigen values
@@ -54,11 +54,11 @@ public:
 
 protected:
     pcl::PointCloud<pcl::PointXYZ>::Ptr _featureCloud; /*!< pcl point cloud of the feature*/
-    Eigen::Vector3d _barycenter;
+    Eigen::Vector3f _barycenter;
     Eigen::Matrix3f _covarianceMatrix;
     Eigen::Vector3f _eigenValues;
     Eigen::Matrix3f _eigenVectors;
-    Eigen::Vector3d _direction;
+    Eigen::Vector3f _direction;
     int size;
 };
 

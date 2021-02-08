@@ -11,9 +11,9 @@ Eigen::MatrixXf colorGenerator(){
     for (int i=0; i<4; i++){
         for(int j=0; j<4; j++){
             for(int k=0; k<4; k++){
-                colors(counter,0) = (float)i/3;
-                colors(counter,1) = (float)j/3;
-                colors(counter,2) = (float)k/3;
+                colors(counter,0) = static_cast<float>(i/3);
+                colors(counter,1) = static_cast<float>(j/3);
+                colors(counter,2) = static_cast<float>(k/3);
                 counter++;
             }
         }
@@ -56,13 +56,13 @@ void Display::dispFeature(Feature feature, std::string id)
 
     // add the direction vector to the viewer
     pcl::PointXYZ p1;
-    Eigen::Vector3d barycenter = feature.getBarycenter();
+    Eigen::Vector3f barycenter = feature.getBarycenter();
     p1.x = barycenter(0);
     p1.y = barycenter(1);
     p1.z = barycenter(2);
 
-    Eigen::Vector3d dirPt;
-    Eigen::Vector3d direction = feature.getDirection();
+    Eigen::Vector3f dirPt;
+    Eigen::Vector3f direction = feature.getDirection();
     dirPt =barycenter+direction;
     pcl::PointXYZ p2;
     p2.x = dirPt(0);
@@ -92,7 +92,7 @@ void Display::dispCorespondance(Feature feature1, Feature feature2)
 void Display::dispEdgeVect(std::vector<Edge> edgeVect)
 {
     viewer->setBackgroundColor (0.2, 0.2, 0.2);
-    for (int i=0; i<edgeVect.size(); i++){
+    for (int i=0; i<static_cast<int>(edgeVect.size()); i++){
         viewer->addPointCloud<pcl::PointXYZ> (edgeVect[i].getFeatureCloud(),"cloud"+std::to_string(i));
         viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR,
                                                   colors(i,0), colors(i,1),colors(i,2), "cloud"+std::to_string(i));
@@ -108,7 +108,7 @@ void Display::dispEdgeVect(std::vector<Edge> edgeVect)
 void Display::dispPlaneVect(std::vector<Plane> planeVect)
 {
     viewer->setBackgroundColor (0.2, 0.2, 0.2);
-    for (int i=0; i<planeVect.size(); i++){
+    for (int i=0; i<static_cast<int>(planeVect.size()); i++){
         dispFeature(planeVect[i],"cloud"+std::to_string(i));
         viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_COLOR,
                                                   colors(i,0), colors(i,1),colors(i,2), "cloud"+std::to_string(i));

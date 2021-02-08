@@ -65,6 +65,11 @@ protected :
     float LEAFSIZE;
 
     /*!
+    *  \brief elminates occluded regions of the point cloud
+    */
+    void occlusionFilter();
+
+    /*!
     *  \brief calculates the smoothness score of each point and stores it in a matrix
     */
     void smoothnessCalculator();
@@ -98,7 +103,7 @@ protected :
     std::vector<Edge> _edgeVect;
     std::vector<Plane> _planeVect;
     Eigen::MatrixXf _smoothnessCloud; /*!< the matrix of the smoothness scores*/
-    Eigen::MatrixXf _labelCloud; /*!< for display purpose*/
+    Eigen::MatrixXi _labelCloud; /*!< for display purpose*/
 };
 
 class VLP16CESARDetector: public CESARFeatureDetector
