@@ -14,7 +14,7 @@ Eigen::MatrixXi RANSAC::randomCoresp(Eigen::MatrixXi corespondences, int k){
     int idx;
 
     // generate the random engine
-    srand((int)time(0) + k);
+    srand(static_cast<int>(time(0)) + k);
 
     idx = rand() % (corespondences.rows()-1);
     randomIndex.push_back(idx);
@@ -67,7 +67,7 @@ Eigen::MatrixXi RANSAC::ransacFilterEdge(std::shared_ptr<Scan> scan1, std::share
         }
 
         // if the size is big enough, we may have found the best set
-        if (newSet.size() > _minResiduals){
+        if (static_cast<int>(newSet.size()) > _minResiduals){
             Eigen::MatrixXi filteredCoresp(newSet.size(), 2);
             for (int k=0; k<newSet.size(); k++){
                 filteredCoresp(k,0) = newCoresp(newSet[k],0);
