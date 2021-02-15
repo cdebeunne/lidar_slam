@@ -1,6 +1,7 @@
 #ifndef MATCHING_H
 #define MATCHING_H
 
+#include "utility.h"
 #include "scan.h"
 #include "feature.h"
 

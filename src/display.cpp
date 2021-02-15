@@ -1,9 +1,4 @@
 #include "display.h"
-#include <pcl/visualization/pcl_visualizer.h>
-#include <pcl/visualization/point_cloud_color_handlers.h>
-#include <pcl/io/io.h>
-#include <Eigen/Dense>
-#include <string>
 
 Eigen::MatrixXf colorGenerator(){
     Eigen::MatrixXf colors(64,3);

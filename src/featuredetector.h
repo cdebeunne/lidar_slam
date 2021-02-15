@@ -1,20 +1,7 @@
 #ifndef FEATUREDETECTOR_H
 #define FEATUREDETECTOR_H
 
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <math.h>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/segmentation/extract_clusters.h>
-#include <pcl/kdtree/kdtree_flann.h>
-#include <pcl/ModelCoefficients.h>
-#include <pcl/filters/extract_indices.h>
-
+#include "utility.h"
 #include "scan.h"
 
 /*!
@@ -63,6 +50,7 @@ protected :
     float C_PLANE; /*!< smoothness score for planes*/
     float C_EDGE; /*!< smoothness score for edges*/
     float LEAFSIZE;
+    float ANGBOTTOM;
 
     /*!
     *  \brief elminates occluded regions of the point cloud

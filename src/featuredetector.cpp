@@ -6,7 +6,7 @@
 #include <pcl/kdtree/kdtree_flann.h>
 
 void CESARFeatureDetector::detect(const std::shared_ptr<Scan> &scan, std::vector<Edge> &edgeVect, std::vector<Plane> &planeVect)
-{
+{   
     WIDTH = scan->getWidth();
     LENGTH = scan->getLength();
 
@@ -56,7 +56,6 @@ void CESARFeatureDetector::occlusionFilter()
       bool isNotValid = true;
       int neighbourIdx = j+1;
       pcl::PointXYZ point2;
-      printf("bite");
       while (isNotValid){
         if (neighbourIdx > LENGTH-1){
           break;
@@ -343,6 +342,7 @@ VLP16CESARDetector::VLP16CESARDetector(){
     C_EDGE = 0.05;
     C_PLANE = 0.02;
     LEAFSIZE = 0.1;
+    ANGBOTTOM = 15;
 }
 
 void VLP16CESARDetector::cloudOrganizer()
@@ -350,8 +350,8 @@ void VLP16CESARDetector::cloudOrganizer()
     for(int i=0; i < static_cast<int>(_cloud->size()); ++i)
     {
         pcl::PointXYZ pt = _cloud->at(i);
-        double theta = (std::atan2(pt.y, pt.x)+M_PI)*180/M_PI;
-        double phi = std::atan2(pt.z, sqrt(pt.y*pt.y + pt.x*pt.x))*180/M_PI+15;
+        float theta = (std::atan2(pt.y, pt.x)+M_PI)*RAD2DEG;
+        float phi = std::atan2(pt.z, sqrt(pt.y*pt.y + pt.x*pt.x))*RAD2DEG+ANGBOTTOM;
         int row = std::round(phi*WIDTH/30);
         int column = std::round(theta*LENGTH/360);
         row = std::max(row-1, 0);
@@ -370,6 +370,7 @@ HDL64CESARDetector::HDL64CESARDetector()
     C_EDGE = 0.12;
     C_PLANE = 0.05;
     LEAFSIZE = 0.07;
+    ANGBOTTOM = 23.72;
 }
 
 void HDL64CESARDetector::cloudOrganizer()
@@ -377,8 +378,8 @@ void HDL64CESARDetector::cloudOrganizer()
     for(int i=0; i < static_cast<int>(_cloud->size()); ++i)
     {
         pcl::PointXYZ pt = _cloud->at(i);
-        double theta = (std::atan2(pt.y, pt.x)+M_PI)*180/M_PI;
-        double phi = std::atan2(pt.z, sqrt(pt.y*pt.y + pt.x*pt.x))*180/M_PI+23.72;
+        double theta = (std::atan2(pt.y, pt.x)+M_PI)*RAD2DEG;
+        double phi = std::atan2(pt.z, sqrt(pt.y*pt.y + pt.x*pt.x))*RAD2DEG+ANGBOTTOM;
         int row = std::round(phi*WIDTH/29.42);
         int column = std::round(theta*LENGTH/360);
         row = modulo(std::max(row, 0),WIDTH);

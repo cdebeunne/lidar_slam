@@ -1,27 +1,4 @@
 #include "transformationsolver.h"
-#include <ceres/ceres.h>
-#include <glog/logging.h>
-#include <pcl/common/transforms.h>
-#include <math.h>
-#include "feature.h"
-#include "matching.h"
-
-Eigen::Matrix3d euler2rotm(double theta, double phi, double psi)
-{
-    Eigen::Matrix3d rotx;
-    rotx << 1,0,0,
-            0,cos(theta),-sin(theta),
-            0,sin(theta),cos(theta);
-    Eigen::Matrix3d roty;
-    roty << cos(phi),0,sin(phi),
-            0,1,0,
-            -sin(phi),0,cos(phi);
-    Eigen::Matrix3d rotz;
-    rotz << cos(psi), -sin(psi),0,
-            sin(psi),cos(psi),0,
-            0,0,1;
-    return rotx*roty*rotz;
-}
 
 class EdgeCostFunctor {
 public:
@@ -31,7 +8,7 @@ public:
         Eigen::Vector3d T;
         T << x[0],x[1],x[2];
         Eigen::Matrix3d R;
-        R = euler2rotm(x[3],x[4],x[5]);
+        R = eul2rotm(x[3],x[4],x[5]);
 
         Eigen::Vector3d bary1 = edge1_.getBarycenter().cast<double> ();
         Eigen::Vector3d bary2 = edge2_.getBarycenter().cast<double> ();
@@ -74,7 +51,7 @@ public:
 
     bool operator()(const double* x, double* error) const {
         Eigen::Matrix3d R;
-        R = euler2rotm(x[3],x[4],x[5]);
+        R = eul2rotm(x[3],x[4],x[5]);
 
         Eigen::Vector3d normal1 = plane1_.getDirection().cast<double> ();
         Eigen::Vector3d normal2 = plane2_.getDirection().cast<double> ();
@@ -251,7 +228,7 @@ void TransformationSolver::applyTransformation(Eigen::VectorXd transVec, std::sh
     Eigen::VectorXd X1 = scan1->getPose();
     Eigen::VectorXd X2 = Eigen::VectorXd::Zero(6);
     X2.tail(3) = X1.tail(3)+ transVec.tail(3);
-    R = euler2rotm(X1(3), X1(4), X1(5));
+    R = eul2rotm(X1(3), X1(4), X1(5));
     X2.head(3) = X1.head(3) + R*transVec.head(3);
     scan2->setPose(X2);
 }

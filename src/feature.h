@@ -1,8 +1,7 @@
 #ifndef FEATURE_H
 #define FEATURE_H
 
-#include <pcl/io/io.h>
-#include <Eigen/Dense>
+#include "utility.h"
 
 /*!
  * \file feature.h

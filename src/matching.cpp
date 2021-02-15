@@ -1,9 +1,4 @@
 #include "matching.h"
-#include "scan.h"
-#include "feature.h"
-
-#include <Eigen/Dense>
-#include <math.h>
 
 const float Matching::BARYTHRESHOLD = 1.5;
 const float Matching::EIGENTHRESHOLD_EDGE = 30;

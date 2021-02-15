@@ -1,17 +1,9 @@
 #ifndef SCANPROVIDER_H
 #define SCANPROVIDER_H
 
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <vector>
-#include <math.h>
+#include "utility.h"
 #include "scan.h"
 
-#include <pcl/io/io.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/filters/statistical_outlier_removal.h>
 
 /*!
  * \file scanprovider.h

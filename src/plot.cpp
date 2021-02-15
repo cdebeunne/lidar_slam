@@ -1,22 +1,5 @@
 #include "plot.h"
 
-Eigen::Matrix3d eul2rotm(double theta, double phi, double psi)
-{
-    Eigen::Matrix3d rotx;
-    rotx << 1,0,0,
-            0,cos(theta),-sin(theta),
-            0,sin(theta),cos(theta);
-    Eigen::Matrix3d roty;
-    roty << cos(phi),0,sin(phi),
-            0,1,0,
-            -sin(phi),0,cos(phi);
-    Eigen::Matrix3d rotz;
-    rotz << cos(psi), -sin(psi),0,
-            sin(psi),cos(psi),0,
-            0,0,1;
-    return rotx*roty*rotz;
-}
-
 Plot::Plot(ros::NodeHandle nh): _nh(nh)
 {
   // initializing the publisher

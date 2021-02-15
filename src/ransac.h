@@ -1,6 +1,7 @@
 #ifndef RANSAC_H
 #define RANSAC_H
-#include <Eigen/Dense>
+
+#include "utility.h"
 #include "scan.h"
 #include "transformationsolver.h"
 

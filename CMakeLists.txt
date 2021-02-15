@@ -7,7 +7,7 @@ project(lidar_slam)
 
 set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_FLAGS "-std=c++11")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -g -pthread")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall")
 
 #############
 ## Package ##
@@ -34,7 +34,7 @@ find_package(PCL 1.2 REQUIRED)
 
 catkin_package(
   DEPENDS PCL 
-
+  INCLUDE_DIRS include
   CATKIN_DEPENDS 
   std_msgs
   nav_msgs
@@ -43,7 +43,8 @@ catkin_package(
 )
 
 # include directories
-include_directories(${catkin_INCLUDE_DIRS}
+include_directories(include
+${catkin_INCLUDE_DIRS}
 ${PCL_INCLUDE_DIRS}
 ${CERES_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
@@ -58,7 +59,7 @@ add_library (Matching src/matching.cpp src/matching.h)
 add_library (TransformationSolver src/transformationsolver.cpp src/transformationsolver.h)
 add_library (Plot src/plot.cpp src/plot.h)
 add_library (RANSAC src/ransac.cpp src/ransac.h)
-add_library (FeatureDetector src/featuredetector.cpp src/featuredetector.h)
+add_library (FeatureDetector src/featuredetector.cpp src/featuredetector.h src/loamfeaturedetector.cpp src/loamfeaturedetector.h)
 add_executable (main src/main.cpp)
 
 # target the libraries

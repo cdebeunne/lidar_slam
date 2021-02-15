@@ -1,7 +1,10 @@
 #ifndef TRANSFORMATIONSOLVER_H
 #define TRANSFORMATIONSOLVER_H
-#include <Eigen/Dense>
+
+#include "utility.h"
 #include "scan.h"
+#include <ceres/ceres.h>
+#include <glog/logging.h>
 
 /*!
  * \file transformationsolver.h

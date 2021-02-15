@@ -1,9 +1,7 @@
 #ifndef SCAN_H
 #define SCAN_H
 
-#include <pcl/io/io.h>
-#include <Eigen/Dense>
-#include <pcl/filters/filter.h>
+#include "utility.h"
 #include "feature.h"
 
 /*!

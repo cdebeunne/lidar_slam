@@ -1,9 +1,7 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include <pcl/io/io.h>
-#include <pcl/visualization/pcl_visualizer.h>
-#include <Eigen/Dense>
+#include "utility.h"
 
 #include "feature.h"
 
