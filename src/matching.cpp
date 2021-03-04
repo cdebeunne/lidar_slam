@@ -65,50 +65,66 @@ Eigen::MatrixXi Matching::edgeMatching(std::vector<Edge> edgeVect1, std::vector<
     // building the distance matrix
     Eigen::ArrayXXf distMat(edgeVect1.size(), edgeVect2.size());
     for (int i=0; i<static_cast<int>(edgeVect1.size()); i++){
-        for (int j=0; j<static_cast<int>(edgeVect2.size()); j++){
-            ev1 = edgeVect1[i].getEigenValues();
-            dir1 = edgeVect1[i].getDirection();
-            barycenter1 = edgeVect1[i].getBarycenter();
-            size1 = edgeVect1[i].getSize();
-            ev2 = edgeVect2[j].getEigenValues();
-            dir2 = edgeVect2[j].getDirection();
-            barycenter2 = edgeVect2[j].getBarycenter();
-            size2 = edgeVect2[j].getSize();
+      for (int j=0; j<static_cast<int>(edgeVect2.size()); j++){
+        ev1 = edgeVect1[i].getEigenValues();
+        dir1 = edgeVect1[i].getDirection();
+        barycenter1 = edgeVect1[i].getBarycenter();
+        size1 = edgeVect1[i].getSize();
+        ev2 = edgeVect2[j].getEigenValues();
+        dir2 = edgeVect2[j].getDirection();
+        barycenter2 = edgeVect2[j].getBarycenter();
+        size2 = edgeVect2[j].getSize();
 
-            sizeDelta = std::abs(size1-size2)/std::max(size1,size2);
-            eigDist = (ev2-ev1).norm();
-            dirDist = std::abs(dir1.dot(dir2)-dir1.norm()*dir2.norm());
-            centerDist = std::abs(barycenter1(2)-barycenter2(2));
-            baryDist = (barycenter1.head(2)-barycenter2.head(2)).norm();
+        sizeDelta = std::abs(size1-size2)/std::max(size1,size2);
+        eigDist = (ev2-ev1).norm();
+        dirDist = std::abs(dir1.dot(dir2)-dir1.norm()*dir2.norm());
+        centerDist = std::abs(barycenter1(2)-barycenter2(2));
+        baryDist = (barycenter1.head(2)-barycenter2.head(2)).norm();
 
-            if (baryDist > BARYTHRESHOLD){
-                distMat(i,j) = 100;
-            } else{
-                distMat(i,j) = eigDist + dirDist;
-            }
+        if (baryDist > BARYTHRESHOLD){
+          distMat(i,j) = 100;
+        } else{
+          distMat(i,j) = eigDist + dirDist;
         }
+      }
     }
 
     // establishing the corespondences
     Eigen::Index index2;
+    std::vector<float> baryDistList;
     float minVal1;
     float minVal2;
     for(int i=0;i<distMat.rows();++i){
-        minVal1 = distMat.row(i).minCoeff(&index2);
-        minVal2 = distMat.col(index2).minCoeff();
-        if (minVal1 == minVal2 && minVal1 < EIGENTHRESHOLD_EDGE){
-            idx[0] = i;
-            idx[1] = index2;
-            corespTemp.push_back(idx[0]);
-            corespTemp.push_back(idx[1]);
-        }
+      minVal1 = distMat.row(i).minCoeff(&index2);
+      minVal2 = distMat.col(index2).minCoeff();
+      if (minVal1 == minVal2 && minVal1 < EIGENTHRESHOLD_EDGE){
+        idx[0] = i;
+        idx[1] = index2;
+        corespTemp.push_back(idx[0]);
+        corespTemp.push_back(idx[1]);
+        baryDist = (edgeVect1[i].getBarycenter()-edgeVect2[index2].getBarycenter()).norm();
+        baryDistList.push_back(baryDist);
+      }
+    }
+
+    // rejecting outliers with the distance
+    std::vector<int> inliers = outlierRejection(baryDistList,0.4);
+    int numberOfInliers = 0;
+    for (auto it : inliers){
+      if (it == 1){
+        numberOfInliers++;
+      }
     }
 
     // building the corespondance matrix
-    Eigen::MatrixXi corespondanceEdge(corespTemp.size()/2, 2);
-    for (int i=0; i<static_cast<int>(corespTemp.size()/2); i++){
-        corespondanceEdge(i,0) = corespTemp.at(i*2);
-        corespondanceEdge(i,1) = corespTemp.at(i*2+1);
+    Eigen::MatrixXi corespondanceEdge(numberOfInliers, 2);
+    int counter = 0;
+    for (int i=0; i<inliers.size(); i++){
+      if (inliers.at(i)==1){
+        corespondanceEdge(counter,0) = corespTemp.at(i*2);
+        corespondanceEdge(counter,1) = corespTemp.at(i*2+1);
+        counter++;
+      }
     }
     return corespondanceEdge;
 

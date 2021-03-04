@@ -15,6 +15,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall")
 
 find_package(catkin REQUIRED COMPONENTS
   tf
+  rosbag
   roscpp
   rospy
   roslib
